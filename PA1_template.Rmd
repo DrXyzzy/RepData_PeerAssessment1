@@ -86,7 +86,6 @@ Repeat stats with adjusted steps (missing values substituted)
 ```{r adjusted_steps_per_day}
 daily.steps.adj <- aggregate(steps.adj ~ date,activity.data,sum)
 steps.adj <- daily.steps.adj$steps.adj
-#hist(steps.adj)
 ```
 
 Steps stats after adjusting for NAs. Only median and mean were requested.
@@ -103,7 +102,7 @@ Create a new factor variable "day.type" in dataset activity.data with two levels
 
 ```{r}
 
-# will use grid system
+# setup for panel plot
 library(lattice)
 
 # for debugging, add column to show day of week for each observation
@@ -115,11 +114,11 @@ activity.data$day.type = as.factor(ifelse(
                 weekdays(activity.data$date) == "Sunday","weekend","weekday"))
 
 
+# compute interval averages over both day types, weekday and weekend
 interval.weekday.steps <- aggregate(steps ~ interval,activity.data[activity.data$day.type == "weekday",],mean)
-# plot(interval.weekday.steps,type = "l")
-
 interval.weekend.steps <- aggregate(steps ~ interval,activity.data[activity.data$day.type == "weekend",],mean)
-# plot(interval.weekend.steps,type = "l")
+
+# create a single "lean format" dataframe with interval averages for weekdays and weekends
 
 interval.weekday.steps$day.type <- "weekday"
 interval.weekend.steps$day.type <- "weekend"
@@ -127,6 +126,7 @@ interval.weekend.steps$day.type <- "weekend"
 combined <- rbind(interval.weekday.steps,interval.weekend.steps)
 combined <- transform(combined, day.type = factor(day.type))
 
+# show the panel plot
 xyplot(steps ~ interval | day.type, data = combined, layout = c(1,2),type = "l")
 
 ```
